@@ -1,0 +1,79 @@
+---
+title: "Chapter 3: The Beta-Binomial Bayesian Model"
+author: "Thomas Sandmann"
+format:
+  html:
+    embed-resources: true
+editor_options: 
+  chunk_output_type: console
+execute: 
+  cache: false
+---
+
+This quarto markdown documents contains code from Chapter 3 of
+[Bayes Rules! An Introduction to Applied Bayesian Modeling](https://www.bayesrulesbook.com/chapter-2#building-a-bayesian-model-for-events)
+by Alicia A. Johnson, Miles Q. Ott and Mine Dogucu.
+
+I am using it to document my progress and to take notes as I work my way through
+the book. Many thanks to the authors for making their book available online!
+
+```{r}
+#| message: false
+#| warning: false
+library(bayesrules)
+library(janitor)
+library(patchwork)
+library(sessioninfo)
+library(tidyverse)
+```
+
+```{r}
+# Plot the Beta(45, 55) prior
+plot_beta(45, 55)
+```
+
+```{r}
+plot_beta_binomial(alpha = 45, beta = 55, y = 30, n = 50)
+```
+
+The summarize_beta_binomial() function in the bayesrules package summarizes the typical values and variability in the prior and posterior models of π.
+
+```{r}
+summarize_beta_binomial(alpha = 45, beta = 55, y = 30, n = 50)
+```
+
+```{r}
+set.seed(84735)
+michelle_sim <- data.frame(pi = rbeta(10000, 45, 55)) %>% 
+  mutate(y = rbinom(10000, size = 50, prob = pi))
+ggplot(michelle_sim, aes(x = pi, y = y)) + 
+  geom_point(aes(color = (y == 30)), size = 0.1)
+```
+
+```{r}
+# Keep only the simulated pairs that match our data
+michelle_posterior <- michelle_sim %>% 
+  filter(y == 30)
+
+# Plot the remaining pi values
+ggplot(michelle_posterior, aes(x = pi)) + 
+  geom_density()
+```
+
+```{r}
+michelle_posterior %>% 
+  summarize(mean(pi), sd(pi))
+```
+
+## Reproducibility
+
+<details>
+<summary>
+Session information
+</summary>
+
+```{r}
+sessionInfo()
+```
+
+</details>
